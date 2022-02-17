@@ -24,43 +24,10 @@ for(b in 1:B){
 
 
 
-
-<<echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.asp=0.62>>=
-temp<-cbind(table(index_med[,1]))
-tib<-tibble(index=as.numeric(rownames(temp)), frequency=temp[,1])
-
-ggplot(tib, aes(index,frequency))+geom_bar(stat = "identity")+scale_x_continuous("Index of order statistic in the original sample",breaks=seq(140,260,10), labels = seq(140,260,10))
-@
-
-\pagebreak
-
-
-<<echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.asp=0.85>>=
-tib<-tibble(index=index_med[,1], Distribution="Empirical")
-
-tib2=tibble(index=rbinom(B,N+1,Q[1]), Distribution="Binomial(2001,0.1)")
-tib<-bind_rows(tib,tib2)
-
-ggplot(tib, aes(x=index,group=Distribution))+geom_density(aes(color=Distribution), size=1)+scale_x_continuous("Index of order statistic in the original sample")+theme(legend.position = "bottom")
-
-@
-
-\pagebreak
-
-<<echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.asp=0.85>>=
-tib<-tibble(index=index_med[,2], Distribution="Empirical")
-
-tib2=tibble(index=rbinom(B,N+1,Q[2]), Distribution="Binomial(2001,0.5)")
-tib<-bind_rows(tib,tib2)
-
-ggplot(tib, aes(x=index,group=Distribution))+geom_density(aes(color=Distribution), size=1)+scale_x_continuous("Index of order statistic in the original sample")+theme(legend.position = "bottom")
-
-@
-
-
 \pagebreak
 
 <<echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE>>=
+# Requires Julia files to be run first
 tib<-read_csv("sim1.csv")
 tib2<-tib %>% group_by(Q) %>% summarise(Empirical_coverage=1-mean(sig_fast), 
                                         upper_CI=1-mean(sig_fast) - qnorm(0.975)*sqrt(((1-mean(sig_fast))*mean(sig_fast))/length(sig_fast)),
