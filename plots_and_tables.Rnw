@@ -1,0 +1,56 @@
+\documentclass{article}
+
+\begin{document}
+<<include=FALSE>>=
+library(tidyverse)
+library(xtable)
+@
+
+<<echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE>>=
+# EMPIRICAL BOOTSTRAP DISTRIBUTION
+set.seed(4321)
+N<-2000
+Q=c(0.1,0.5)
+B<-1000000
+ordered_x = 1:N
+index_med<-matrix(NA,B,2)
+for(b in 1:B){
+  pois_temp=rpois(N,1)
+  n<-round((sum(pois_temp)+1)*Q)
+  index_med[b,]<-ifelse(round(n)==0,0,rep(ordered_x, pois_temp)[n])
+}
+
+@
+
+
+
+\pagebreak
+
+<<echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE>>=
+# Requires Julia files to be run first
+tib<-read_csv("sim1.csv")
+tib2<-tib %>% group_by(Q) %>% summarise(Empirical_coverage=1-mean(sig_fast), 
+                                        upper_CI=1-mean(sig_fast) - qnorm(0.975)*sqrt(((1-mean(sig_fast))*mean(sig_fast))/length(sig_fast)),
+                                        lower_CI=1-mean(sig_fast) + qnorm(0.975)*sqrt(((1-mean(sig_fast))*mean(sig_fast))/length(sig_fast)))
+
+print(xtable(tib2, digits=4), include.rownames = FALSE)
+@
+
+\pagebreak
+
+
+<<echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.asp=0.62>>=
+# Requires Julia files to be run first
+tib<-read_csv("sim0.csv")
+names(tib)<-c("dist","N","B", "Quantile")
+tib$Quantile<-as_factor(tib$Quantile)
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+ggplot(tib, aes(N,dist,group=Quantile))+geom_line(aes(color=Quantile))+geom_point(aes(shape=Quantile))+geom_hline(yintercept = 0)+scale_y_continuous("KS-statistic")+scale_colour_manual(values=cbPalette)
+ggsave("fig_mc_KS.pdf", width = 6, height = 6*0.62)
+
+@
+
+
+
+\end{document}
