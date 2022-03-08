@@ -51,3 +51,22 @@ ggplot(tib, aes(x=index,group=Distribution)) +
   scale_linetype_manual(values=c(NA, "dotted")) +
   scale_alpha_manual(values=c(1, 0))
 ggsave("fig3.pdf", width = 4, height = 4*0.85)
+
+tib <- read_csv("sim0.csv")
+names(tib) <- c("dist","N","B", "Quantile")
+tib$Quantile <- as_factor(tib$Quantile)
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# Requires Julia files to be run first
+ggplot(tib, aes(N,dist,group=Quantile)) +
+  geom_line(aes(color=Quantile), size = 0.8) +
+  geom_point(aes(shape=Quantile)) +
+  geom_hline(yintercept = 0) +
+  scale_colour_manual(values=cbPalette) +
+  theme_minimal() + 
+  labs(
+    y = "Kolmogorov-Smirnov distance",
+    x = "Sample size (N)"
+  )
+
+ggsave("fig4.pdf", width = 6, height = 6*0.62)
